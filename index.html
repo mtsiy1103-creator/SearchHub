@@ -3,223 +3,288 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>통합 검색</title>
+<title>SIY SearchHub</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#222;}
 
-  body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f4f8;
-    transition: background 0.4s;
-  }
+/* 헤더 */
+.header{background:white;padding:18px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.07);display:flex;flex-direction:column;align-items:center;gap:14px;}
+.logo{font-size:1.6rem;font-weight:800;letter-spacing:-1px;}
+.logo span{color:#4285F4;}
 
-  .logo-area {
-    margin-bottom: 36px;
-    text-align: center;
-  }
+/* 엔진 탭 */
+.engine-tabs{display:flex;gap:8px;}
+.engine-btn{padding:8px 22px;border:2px solid #ddd;border-radius:50px;background:white;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:#555;}
+.engine-btn.google.active{background:#4285F4;border-color:#4285F4;color:white;}
+.engine-btn.naver.active{background:#03C75A;border-color:#03C75A;color:white;}
+.engine-btn.daum.active{background:#FF5A00;border-color:#FF5A00;color:white;}
 
-  .logo-area .main-title {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-    color: #222;
-    margin-bottom: 6px;
-  }
+/* 검색창 */
+.search-wrap{display:flex;align-items:center;background:white;border-radius:50px;padding:7px 7px 7px 22px;width:580px;max-width:92vw;box-shadow:0 4px 20px rgba(0,0,0,0.10);border:2px solid transparent;transition:border 0.2s;}
+.search-wrap.gf:focus-within{border-color:#4285F4;}
+.search-wrap.nf:focus-within{border-color:#03C75A;}
+.search-wrap.df:focus-within{border-color:#FF5A00;}
+#sinput{flex:1;border:none;outline:none;font-size:1.05rem;background:transparent;}
+#sinput::placeholder{color:#bbb;}
+.sbtn{padding:9px 20px;border:none;border-radius:50px;font-size:0.95rem;font-weight:700;cursor:pointer;color:white;transition:all 0.15s;}
+.sbtn.google{background:#4285F4;} .sbtn.naver{background:#03C75A;} .sbtn.daum{background:#FF5A00;}
 
-  .logo-area .sub-title {
-    font-size: 0.95rem;
-    color: #888;
-  }
+/* 메인 */
+.main{max-width:1100px;margin:0 auto;padding:24px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 
-  /* 엔진 선택 버튼 */
-  .engine-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
+/* 카드 공통 */
+.card{background:white;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.card-title{font-size:0.8rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
 
-  .engine-btn {
-    padding: 10px 26px;
-    border: 2px solid #ddd;
-    border-radius: 50px;
-    background: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #555;
-  }
+/* 날씨 */
+.weather-main{display:flex;align-items:center;gap:12px;}
+.weather-icon{font-size:3rem;}
+.weather-temp{font-size:2.4rem;font-weight:800;}
+.weather-info{font-size:0.85rem;color:#777;margin-top:4px;}
+.weather-loc{font-size:0.9rem;font-weight:600;color:#444;margin-top:2px;}
+.loading{color:#bbb;font-size:0.9rem;}
 
-  .engine-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+/* 환율 */
+.rate-list{display:flex;flex-direction:column;gap:8px;}
+.rate-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f0f0;}
+.rate-item:last-child{border-bottom:none;}
+.rate-name{font-size:0.9rem;color:#555;font-weight:600;}
+.rate-val{font-size:1rem;font-weight:800;color:#222;}
+.rate-change{font-size:0.75rem;margin-left:6px;}
+.up{color:#e53e3e;} .dn{color:#3182ce;}
 
-  .engine-btn.google.active  { background: #4285F4; border-color: #4285F4; color: white; }
-  .engine-btn.naver.active   { background: #03C75A; border-color: #03C75A; color: white; }
-  .engine-btn.daum.active    { background: #FF5A00; border-color: #FF5A00; color: white; }
+/* 주가 */
+.stock-list{display:flex;flex-direction:column;gap:8px;}
+.stock-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f0f0;}
+.stock-item:last-child{border-bottom:none;}
+.stock-name{font-size:0.88rem;font-weight:600;color:#444;}
+.stock-val{font-size:0.95rem;font-weight:800;}
 
-  /* 검색창 */
-  .search-box {
-    display: flex;
-    align-items: center;
-    background: white;
-    border-radius: 50px;
-    padding: 8px 8px 8px 24px;
-    width: 560px;
-    max-width: 90vw;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-    border: 2px solid transparent;
-    transition: border 0.2s, box-shadow 0.2s;
-  }
+/* 뉴스 */
+.news-section{grid-column:1/-1;}
+.news-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.ntab{padding:6px 18px;border:2px solid #eee;border-radius:50px;background:white;font-size:0.88rem;font-weight:600;cursor:pointer;color:#888;transition:all 0.2s;}
+.ntab.naver.active{background:#03C75A;border-color:#03C75A;color:white;}
+.ntab.daum.active{background:#FF5A00;border-color:#FF5A00;color:white;}
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.news-item{padding:14px;border:1px solid #f0f0f0;border-radius:12px;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;color:inherit;}
+.news-item:hover{box-shadow:0 4px 16px rgba(0,0,0,0.10);transform:translateY(-2px);}
+.news-cat{font-size:0.72rem;font-weight:700;color:#4285F4;margin-bottom:5px;text-transform:uppercase;}
+.news-title{font-size:0.9rem;font-weight:600;line-height:1.4;color:#222;}
+.news-time{font-size:0.75rem;color:#bbb;margin-top:6px;}
+.news-src{font-size:0.75rem;color:#999;margin-top:3px;}
 
-  .search-box:focus-within {
-    box-shadow: 0 6px 32px rgba(0,0,0,0.15);
-  }
-
-  .search-box.google-focus:focus-within  { border-color: #4285F4; }
-  .search-box.naver-focus:focus-within   { border-color: #03C75A; }
-  .search-box.daum-focus:focus-within    { border-color: #FF5A00; }
-
-  #search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 1.1rem;
-    color: #222;
-    background: transparent;
-  }
-
-  #search-input::placeholder { color: #bbb; }
-
-  .search-submit {
-    padding: 10px 22px;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    color: white;
-    transition: background 0.2s, transform 0.1s;
-  }
-
-  .search-submit:active { transform: scale(0.96); }
-  .search-submit.google { background: #4285F4; }
-  .search-submit.naver  { background: #03C75A; }
-  .search-submit.daum   { background: #FF5A00; }
-
-  /* 빠른 링크 */
-  .quick-links {
-    display: flex;
-    gap: 16px;
-    margin-top: 36px;
-  }
-
-  .quick-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    color: #555;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: transform 0.2s;
-  }
-
-  .quick-link:hover { transform: translateY(-3px); }
-
-  .quick-link .icon {
-    width: 48px; height: 48px;
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  }
-
-  .ql-google .icon { background: #4285F4; }
-  .ql-naver .icon  { background: #03C75A; }
-  .ql-daum .icon   { background: #FF5A00; }
-
-  /* 현재 엔진 표시 */
-  .current-engine {
-    margin-top: 14px;
-    font-size: 0.85rem;
-    color: #aaa;
-  }
-
-  .current-engine span { font-weight: 700; }
-  .current-engine .g { color: #4285F4; }
-  .current-engine .n { color: #03C75A; }
-  .current-engine .d { color: #FF5A00; }
+@media(max-width:700px){
+  .main{grid-template-columns:1fr;}
+  .news-section{grid-column:1;}
+}
 </style>
 </head>
 <body>
 
-<div class="logo-area">
-  <div class="main-title">🔍 통합 검색</div>
-  <div class="sub-title">구글 · 네이버 · 다음을 한 곳에서</div>
+<div class="header">
+  <div class="logo">SIY <span>SearchHub</span></div>
+  <div class="engine-tabs">
+    <button class="engine-btn google active" onclick="selEng('google')">🌐 Google</button>
+    <button class="engine-btn naver" onclick="selEng('naver')">🟢 Naver</button>
+    <button class="engine-btn daum" onclick="selEng('daum')">🟠 Daum</button>
+  </div>
+  <div class="search-wrap gf" id="swrap">
+    <input type="text" id="sinput" placeholder="검색어를 입력하세요..." autofocus onkeydown="if(event.key==='Enter')doSearch()">
+    <button class="sbtn google" id="sbtn" onclick="doSearch()">검색</button>
+  </div>
 </div>
 
-<div class="engine-tabs">
-  <button class="engine-btn google active" onclick="selectEngine('google')">🌐 Google</button>
-  <button class="engine-btn naver" onclick="selectEngine('naver')">🟢 Naver</button>
-  <button class="engine-btn daum" onclick="selectEngine('daum')">🟠 Daum</button>
-</div>
+<div class="main">
+  <!-- 날씨 -->
+  <div class="card" id="weather-card">
+    <div class="card-title">📍 현재 날씨</div>
+    <div id="weather-body"><div class="loading">위치 정보 가져오는 중...</div></div>
+  </div>
 
-<div class="search-box google-focus" id="search-box">
-  <input type="text" id="search-input" placeholder="검색어를 입력하세요..." autofocus
-    onkeydown="if(event.key==='Enter') doSearch()">
-  <button class="search-submit google" id="submit-btn" onclick="doSearch()">검색</button>
-</div>
+  <!-- 환율 -->
+  <div class="card">
+    <div class="card-title">💱 환율 (원화 기준)</div>
+    <div class="rate-list" id="rate-list"><div class="loading">환율 불러오는 중...</div></div>
+  </div>
 
-<div class="current-engine" id="engine-label">
-  현재 선택: <span class="g">Google</span>
-</div>
+  <!-- 주가 -->
+  <div class="card">
+    <div class="card-title">📈 국내외 주요 지수</div>
+    <div class="stock-list" id="stock-list"><div class="loading">지수 불러오는 중...</div></div>
+  </div>
 
-<div class="quick-links">
-  <a class="quick-link ql-google" href="https://www.google.com" target="_blank">
-    <div class="icon">G</div>Google
-  </a>
-  <a class="quick-link ql-naver" href="https://www.naver.com" target="_blank">
-    <div class="icon">N</div>Naver
-  </a>
-  <a class="quick-link ql-daum" href="https://www.daum.net" target="_blank">
-    <div class="icon">D</div>Daum
-  </a>
+  <!-- 뉴스 -->
+  <div class="card news-section">
+    <div class="card-title">📰 뉴스 헤드라인</div>
+    <div class="news-tabs">
+      <button class="ntab naver active" onclick="switchNews('naver')">네이버 뉴스</button>
+      <button class="ntab daum" onclick="switchNews('daum')">다음 뉴스</button>
+    </div>
+    <div class="news-grid" id="news-grid"><div class="loading">뉴스 불러오는 중...</div></div>
+  </div>
 </div>
 
 <script>
-  let current = 'google';
+// ── 검색 ──
+let eng = 'google';
+const ENG = {
+  google:{url:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,fc:'gf',bc:'google'},
+  naver:{url:q=>`https://search.naver.com/search.naver?query=${encodeURIComponent(q)}`,fc:'nf',bc:'naver'},
+  daum:{url:q=>`https://search.daum.net/search?q=${encodeURIComponent(q)}`,fc:'df',bc:'daum'},
+};
+function selEng(e){
+  eng=e;
+  document.querySelectorAll('.engine-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.engine-btn.'+e).classList.add('active');
+  const sw=document.getElementById('swrap');
+  sw.className='search-wrap '+ENG[e].fc;
+  const sb=document.getElementById('sbtn');
+  sb.className='sbtn '+ENG[e].bc;
+  document.getElementById('sinput').focus();
+}
+function doSearch(){
+  const q=document.getElementById('sinput').value.trim();
+  if(!q)return;
+  window.open(ENG[eng].url(q),'_blank');
+}
 
-  const engines = {
-    google: { url: q => `https://www.google.com/search?q=${encodeURIComponent(q)}`, label: '<span class="g">Google</span>', focusClass: 'google-focus', btnClass: 'google' },
-    naver:  { url: q => `https://search.naver.com/search.naver?query=${encodeURIComponent(q)}`, label: '<span class="n">Naver</span>', focusClass: 'naver-focus', btnClass: 'naver' },
-    daum:   { url: q => `https://search.daum.net/search?q=${encodeURIComponent(q)}`, label: '<span class="d">Daum</span>', focusClass: 'daum-focus', btnClass: 'daum' },
-  };
+// ── 날씨 (Open-Meteo) ──
+const WC={0:'☀️ 맑음',1:'🌤️ 대체로 맑음',2:'⛅ 구름 조금',3:'☁️ 흐림',
+  45:'🌫️ 안개',48:'🌫️ 안개',51:'🌦️ 이슬비',53:'🌦️ 이슬비',55:'🌧️ 이슬비',
+  61:'🌧️ 비',63:'🌧️ 비',65:'🌧️ 강한 비',71:'❄️ 눈',73:'❄️ 눈',75:'❄️ 강한 눈',
+  80:'🌦️ 소나기',81:'🌦️ 소나기',82:'⛈️ 강한 소나기',95:'⛈️ 뇌우',99:'⛈️ 뇌우'};
 
-  function selectEngine(e) {
-    current = e;
-    document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('.engine-btn.' + e).classList.add('active');
-
-    const box = document.getElementById('search-box');
-    box.className = 'search-box ' + engines[e].focusClass;
-
-    const btn = document.getElementById('submit-btn');
-    btn.className = 'search-submit ' + engines[e].btnClass;
-
-    document.getElementById('engine-label').innerHTML = '현재 선택: ' + engines[e].label;
-    document.getElementById('search-input').focus();
+function getWeather(){
+  if(!navigator.geolocation){
+    document.getElementById('weather-body').innerHTML='<div class="loading">위치 권한 필요</div>';return;
   }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const {latitude:lat,longitude:lon}=pos.coords;
+    try{
+      // 도시명
+      const geo=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`);
+      const gd=await geo.json();
+      const city=gd.address.city||gd.address.town||gd.address.county||'현재 위치';
 
-  function doSearch() {
-    const q = document.getElementById('search-input').value.trim();
-    if (!q) return;
-    window.open(engines[current].url(q), '_blank');
-  }
+      // 날씨
+      const wr=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&timezone=Asia%2FSeoul`);
+      const wd=await wr.json();
+      const c=wd.current;
+      const desc=WC[c.weathercode]||'알 수 없음';
+      const [icon,...txt]=desc.split(' ');
+      document.getElementById('weather-body').innerHTML=`
+        <div class="weather-main">
+          <div class="weather-icon">${icon}</div>
+          <div>
+            <div class="weather-temp">${Math.round(c.temperature_2m)}°C</div>
+            <div class="weather-loc">${city}</div>
+            <div class="weather-info">${txt.join(' ')} · 습도 ${c.relativehumidity_2m}% · 풍속 ${c.windspeed_10m}km/h</div>
+          </div>
+        </div>`;
+    }catch{document.getElementById('weather-body').innerHTML='<div class="loading">날씨 로드 실패</div>';}
+  },()=>{document.getElementById('weather-body').innerHTML='<div class="loading">위치 권한을 허용해주세요</div>';});
+}
+
+// ── 환율 (exchangerate-api) ──
+async function getRates(){
+  try{
+    const r=await fetch('https://api.exchangerate-api.com/v4/latest/KRW');
+    const d=await r.json();
+    const pairs=[
+      {name:'🇺🇸 USD (달러)',code:'USD'},
+      {name:'🇯🇵 JPY (엔·100엔)',code:'JPY',mul:100},
+      {name:'🇪🇺 EUR (유로)',code:'EUR'},
+      {name:'🇨🇳 CNY (위안)',code:'CNY'},
+    ];
+    const el=document.getElementById('rate-list');
+    el.innerHTML=pairs.map(p=>{
+      const rate=p.mul? (1/d.rates[p.code]*p.mul):(1/d.rates[p.code]);
+      return `<div class="rate-item">
+        <span class="rate-name">${p.name}</span>
+        <span class="rate-val">${Math.round(rate).toLocaleString()}원</span>
+      </div>`;
+    }).join('');
+  }catch{document.getElementById('rate-list').innerHTML='<div class="loading">환율 로드 실패</div>';}
+}
+
+// ── 주요 지수 (정적 표시 + 안내) ──
+function renderStocks(){
+  // CORS 제한으로 실시간 불가 → 대표 ETF/지수 링크 카드로 표시
+  const items=[
+    {name:'KOSPI',val:'→ 네이버 증권',url:'https://finance.naver.com/sise/sise_index.naver?code=KOSPI',color:'#e53e3e'},
+    {name:'KOSDAQ',val:'→ 네이버 증권',url:'https://finance.naver.com/sise/sise_index.naver?code=KOSDAQ',color:'#e53e3e'},
+    {name:'S&P 500',val:'→ 구글 파이낸스',url:'https://www.google.com/finance/quote/.INX:INDEXSP',color:'#3182ce'},
+    {name:'NASDAQ',val:'→ 구글 파이낸스',url:'https://www.google.com/finance/quote/.IXIC:INDEXNASDAQ',color:'#3182ce'},
+    {name:'비트코인',val:'→ 빗썸',url:'https://www.bithumb.com/react/trade/order/BTC-KRW',color:'#d69e2e'},
+  ];
+  document.getElementById('stock-list').innerHTML=items.map(i=>`
+    <div class="stock-item" style="cursor:pointer" onclick="window.open('${i.url}','_blank')">
+      <span class="stock-name">${i.name}</span>
+      <span class="stock-val" style="color:${i.color};font-size:0.82rem">${i.val}</span>
+    </div>`).join('');
+}
+
+// ── 뉴스 RSS ──
+let curNews='naver';
+const RSS={
+  naver:[
+    {url:'https://rss.naver.com/main/rss/top100/001.xml',cat:'정치'},
+    {url:'https://rss.naver.com/main/rss/top100/101.xml',cat:'경제'},
+    {url:'https://rss.naver.com/main/rss/top100/102.xml',cat:'사회'},
+    {url:'https://rss.naver.com/main/rss/top100/103.xml',cat:'IT'},
+  ],
+  daum:[
+    {url:'https://rss.daum.net/society.rss',cat:'사회'},
+    {url:'https://rss.daum.net/economic.rss',cat:'경제'},
+    {url:'https://rss.daum.net/politics.rss',cat:'정치'},
+    {url:'https://rss.daum.net/digital.rss',cat:'IT'},
+  ]
+};
+
+async function fetchRSS(url){
+  const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=3`;
+  const r=await fetch(proxy);
+  return r.json();
+}
+
+async function loadNews(src){
+  const grid=document.getElementById('news-grid');
+  grid.innerHTML='<div class="loading">뉴스 불러오는 중...</div>';
+  try{
+    const feeds=RSS[src];
+    const results=await Promise.all(feeds.map(f=>fetchRSS(f.url).then(d=>({d,cat:f.cat})).catch(()=>null)));
+    let cards=[];
+    results.forEach(res=>{
+      if(!res||!res.d||!res.d.items)return;
+      res.d.items.slice(0,2).forEach(item=>{
+        const t=new Date(item.pubDate);
+        const timeStr=isNaN(t)?'':t.toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        cards.push(`<a class="news-item" href="${item.link}" target="_blank" rel="noopener">
+          <div class="news-cat">${res.cat}</div>
+          <div class="news-title">${item.title.replace(/<[^>]+>/g,'')}</div>
+          <div class="news-src">${res.d.feed?.title||src}</div>
+          <div class="news-time">${timeStr}</div>
+        </a>`);
+      });
+    });
+    grid.innerHTML=cards.length?cards.join(''):'<div class="loading">뉴스를 가져올 수 없습니다</div>';
+  }catch{grid.innerHTML='<div class="loading">뉴스 로드 실패</div>';}
+}
+
+function switchNews(src){
+  curNews=src;
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.ntab.'+src).classList.add('active');
+  loadNews(src);
+}
+
+// ── 초기화 ──
+getWeather();
+getRates();
+renderStocks();
+loadNews('naver');
 </script>
 </body>
 </html>
