@@ -119,8 +119,8 @@ body{min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8
   <div class="card news-section">
     <div class="card-title">📰 뉴스 헤드라인</div>
     <div class="news-tabs">
-      <button class="ntab naver active" onclick="switchNews('naver')">네이버 뉴스</button>
-      <button class="ntab daum" onclick="switchNews('daum')">다음 뉴스</button>
+      <button class="ntab naver active" onclick="switchNews('general')">종합 뉴스</button>
+      <button class="ntab daum" onclick="switchNews('econit')">경제·IT</button>
     </div>
     <div class="news-grid" id="news-grid"><div class="loading">뉴스 불러오는 중...</div></div>
   </div>
@@ -227,26 +227,55 @@ function renderStocks(){
 }
 
 // ── 뉴스 RSS ──
-let curNews='naver';
+let curNews='general';
 const RSS={
-  naver:[
-    {url:'https://rss.naver.com/main/rss/top100/001.xml',cat:'정치'},
-    {url:'https://rss.naver.com/main/rss/top100/101.xml',cat:'경제'},
-    {url:'https://rss.naver.com/main/rss/top100/102.xml',cat:'사회'},
-    {url:'https://rss.naver.com/main/rss/top100/103.xml',cat:'IT'},
+  general:[
+    {url:'https://www.khan.co.kr/rss/rssdata/total_news.xml',cat:'경향신문'},
+    {url:'https://www.hani.co.kr/rss/',cat:'한겨레'},
+    {url:'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=01&plink=RSSREADER',cat:'SBS 정치'},
+    {url:'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=03&plink=RSSREADER',cat:'SBS 사회'},
   ],
-  daum:[
-    {url:'https://rss.daum.net/society.rss',cat:'사회'},
-    {url:'https://rss.daum.net/economic.rss',cat:'경제'},
-    {url:'https://rss.daum.net/politics.rss',cat:'정치'},
-    {url:'https://rss.daum.net/digital.rss',cat:'IT'},
+  econit:[
+    {url:'https://www.mk.co.kr/rss/30100041/',cat:'매경 경제'},
+    {url:'https://rss.etnews.com/Section901.xml',cat:'전자신문'},
+    {url:'https://www.mk.co.kr/rss/50200011/',cat:'매경 증권'},
+    {url:'https://it.chosun.com/rss/allArticle.xml',cat:'IT조선'},
   ]
 };
 
+// 여러 프록시를 순차 시도 (하나 막히면 다음 것 사용)
 async function fetchRSS(url){
-  const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=3`;
-  const r=await fetch(proxy);
-  return r.json();
+  // 1차: rss2json
+  try{
+    const r=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=3`);
+    const d=await r.json();
+    if(d.status==='ok'&&d.items&&d.items.length)return d;
+  }catch(e){}
+  // 2차: allorigins로 원본 XML 받아서 직접 파싱
+  try{
+    const r=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+    const xml=await r.text();
+    return parseRSSXML(xml);
+  }catch(e){}
+  // 3차: corsproxy.io
+  try{
+    const r=await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`);
+    const xml=await r.text();
+    return parseRSSXML(xml);
+  }catch(e){}
+  return null;
+}
+
+// XML 직접 파싱
+function parseRSSXML(xmlText){
+  const doc=new DOMParser().parseFromString(xmlText,'text/xml');
+  const feedTitle=doc.querySelector('channel > title')?.textContent||'';
+  const items=[...doc.querySelectorAll('item')].slice(0,3).map(it=>({
+    title:it.querySelector('title')?.textContent||'',
+    link:it.querySelector('link')?.textContent||'#',
+    pubDate:it.querySelector('pubDate')?.textContent||''
+  }));
+  return {status:'ok',feed:{title:feedTitle},items};
 }
 
 async function loadNews(src){
@@ -276,7 +305,7 @@ async function loadNews(src){
 function switchNews(src){
   curNews=src;
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
-  document.querySelector('.ntab.'+src).classList.add('active');
+  document.querySelector(src==='general'?'.ntab.naver':'.ntab.daum').classList.add('active');
   loadNews(src);
 }
 
@@ -284,7 +313,7 @@ function switchNews(src){
 getWeather();
 getRates();
 renderStocks();
-loadNews('naver');
+loadNews('general');
 </script>
 </body>
 </html>
